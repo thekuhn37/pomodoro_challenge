@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:pomodoro_challenge/screens/homescreen.dart';
 
 class TimeCard extends StatelessWidget {
-  const TimeCard({
-    super.key,
-  });
+  final String starttime;
+
+  const TimeCard({super.key, required this.starttime});
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +21,7 @@ class TimeCard extends StatelessWidget {
           ),
           child: const Padding(
             padding: EdgeInsets.symmetric(
-              horizontal: 47,
+              horizontal: 45,
               vertical: 50,
             ),
             child: Text('base'),
@@ -30,18 +29,16 @@ class TimeCard extends StatelessWidget {
         ),
         Positioned(
           bottom: -60,
-          right: -12,
+          right: -15,
           child: Container(
+            width: 150,
+            height: 170,
             decoration: BoxDecoration(
                 color: const Color.fromRGBO(234, 228, 196, 1),
                 borderRadius: BorderRadius.circular(10)),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 35,
-                vertical: 35,
-              ),
+            child: Center(
               child: Text(
-                '12',
+                starttime,
                 style: TextStyle(
                   color: Theme.of(context).textTheme.displayLarge!.color,
                   fontSize: Theme.of(context).textTheme.displayLarge!.fontSize,

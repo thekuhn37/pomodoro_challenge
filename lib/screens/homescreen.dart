@@ -11,9 +11,9 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  static const setminutes = 1500;
+  int setminutes = 1500;
   static const restminutes = 300;
-  int totalSeconds = setminutes;
+  late int totalSeconds = setminutes;
   bool isRunning = false;
   bool isResting = false;
   int userround = 0;
@@ -26,9 +26,15 @@ class _HomeScreenState extends State<HomeScreen> {
         userround = userround + 1;
         isRunning = false;
         totalSeconds = setminutes;
+        if (userround == 4) {
+          userround = 0;
+          isResting = true;
+          if (isResting = true) {
+            inrestingTime();
+          }
+        }
       });
       timer.cancel();
-      if (userround == 4) restingTime;
     } else {
       setState(
         () {
@@ -38,7 +44,29 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  void restingTime() {}
+  void inrestingTime() {
+    timer = Timer.periodic(
+      const Duration(seconds: 1),
+      onTick,
+    );
+    usergoal = usergoal + 1;
+    userround = 0;
+    totalSeconds = restminutes;
+    if (totalSeconds == 0) {
+      setState(() {
+        isResting = false;
+        totalSeconds = setminutes;
+        userround = 0;
+      });
+      timer.cancel();
+    } else {
+      setState(
+        () {
+          totalSeconds = totalSeconds - 1;
+        },
+      );
+    }
+  }
 
   void onStartPressed() {
     timer = Timer.periodic(
@@ -65,39 +93,53 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       isRunning = false;
       isResting = false;
+      setminutes = 1500;
       totalSeconds = setminutes;
       userround = 0;
       usergoal = 0;
     });
   }
 
+  void updateMinutes(int minutes) {
+    setState(
+      () {
+        setminutes = minutes;
+        totalSeconds = setminutes;
+      },
+    );
+  }
+
   void nothing() {}
 
   String formatMinute(int seconds) {
-    var duration = Duration(seconds: seconds);
+    var duration1 = Duration(seconds: seconds);
     // print(duration.toString());
     // print(duration.toString().split("."));
     // print(duration.toString().split(".").first);
-    // print(duration.toString().split(".").first.substring(2,7));
-    return duration.toString().split(".").first.substring(2, 7);
+    // print(duration.toString().split(".").first.substring(2,4));
+    return duration1.toString().split(".").first.substring(2, 4);
   }
 
   String formatSecond(int seconds) {
-    var duration = Duration(seconds: seconds);
+    var duration2 = Duration(seconds: seconds);
     // print(duration.toString());
     // print(duration.toString().split("."));
     // print(duration.toString().split(".").first);
-    // print(duration.toString().split(".").first.substring(2,7));
-    return duration.toString().split(".").first.substring(2, 7);
+    // print(duration.toString().split(".").first.substring(5,7));
+    return duration2.toString().split(".").first.substring(5, 7);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: isResting
+          ? Theme.of(context).colorScheme.secondary
+          : Theme.of(context).colorScheme.background,
       appBar: AppBar(
         centerTitle: false,
-        backgroundColor: Theme.of(context).colorScheme.background,
+        backgroundColor: isResting
+            ? Theme.of(context).colorScheme.secondary
+            : Theme.of(context).colorScheme.background,
         title: Padding(
           padding: const EdgeInsets.all(10.0),
           child: Text(
@@ -136,7 +178,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    const TimeCard(),
+                    TimeCard(
+                      starttime: formatMinute(totalSeconds),
+                    ),
                     Transform.translate(
                       offset: const Offset(0, 30),
                       child: const Text(
@@ -148,7 +192,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                     ),
-                    const TimeCard(),
+                    TimeCard(
+                      starttime: formatSecond(totalSeconds),
+                    ),
                   ],
                 ),
               ],
@@ -159,26 +205,43 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Expanded(
               child: Container(
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.background,
+                  color: isResting
+                      ? Theme.of(context).colorScheme.secondary
+                      : Theme.of(context).colorScheme.background,
                 ),
                 alignment: Alignment.topCenter,
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
                   children: [
-                    DurationCard(
-                      totalminutes: 15,
+                    TextButton(
+                      onPressed: () => updateMinutes(900),
+                      child: const DurationCard(
+                        totalminutes: 15,
+                      ),
                     ),
-                    DurationCard(
-                      totalminutes: 20,
+                    TextButton(
+                      onPressed: () => updateMinutes(1200),
+                      child: const DurationCard(
+                        totalminutes: 20,
+                      ),
                     ),
-                    DurationCard(
-                      totalminutes: 25,
+                    TextButton(
+                      onPressed: () => updateMinutes(1500),
+                      child: const DurationCard(
+                        totalminutes: 25,
+                      ),
                     ),
-                    DurationCard(
-                      totalminutes: 30,
+                    TextButton(
+                      onPressed: () => updateMinutes(1800),
+                      child: const DurationCard(
+                        totalminutes: 30,
+                      ),
                     ),
-                    DurationCard(
-                      totalminutes: 35,
+                    TextButton(
+                      onPressed: () => updateMinutes(2),
+                      child: const DurationCard(
+                        totalminutes: 35,
+                      ),
                     ),
                   ],
                 ),
@@ -194,8 +257,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   iconSize: 100,
                   color: Theme.of(context).colorScheme.onBackground,
                   onPressed: isRunning ? onPausePressed : onStartPressed,
-                  icon: const Icon(
-                    Icons.play_circle_outline_outlined,
+                  icon: Icon(
+                    isRunning
+                        ? Icons.pause_circle_outline_outlined
+                        : Icons.play_circle_outline_outlined,
                   ),
                 ),
                 IconButton(
@@ -217,9 +282,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text(
-                      '0/4',
-                      style: TextStyle(
+                    Text(
+                      '$userround/4',
+                      style: const TextStyle(
                           color: Color.fromRGBO(234, 228, 196, 0.5),
                           fontSize: 22,
                           fontWeight: FontWeight.bold),
@@ -236,9 +301,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text(
-                      '0/12',
-                      style: TextStyle(
+                    Text(
+                      '$usergoal/12',
+                      style: const TextStyle(
                           color: Color.fromRGBO(234, 228, 196, 0.5),
                           fontSize: 22,
                           fontWeight: FontWeight.bold),
